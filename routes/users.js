@@ -6,7 +6,7 @@ const bcrypt = require("bcrypt");
 
 router.put("/:id", async (req, res) => {
   //Userid matches to the registered userId then only this condition will run
-  if (req.body.userId === req.params.id || req.user.isAdmin) {
+  if (req.body.userId === req.params.id || req.body.isAdmin) {
     //Updating password : If user might want to change their password
     if (req.body.password) {
       try {
@@ -23,12 +23,25 @@ router.put("/:id", async (req, res) => {
       });
       res.status(200).json("Account Updated Succesfully");
     } catch (error) {
-      res.status(500).json(user);
+      res.status(500).json(error);
     }
   } else {
     res
       .status(403)
-      .json("You are not authorize to update someone Else account");
+      .json("You are not authorize to update someone else account");
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  if (req.body.userId === req.params.id || req.body.isAdmin) {
+    try {
+      await User.findByIdAndDelete(req.params.id);
+      res.status(200).json("Account deleted Succesfully");
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  } else {
+    return res.status(403).send("You can delete only your account");
   }
 });
 
