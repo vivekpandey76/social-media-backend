@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 //Update user
 
 router.put("/:id", async (req, res) => {
-  //Userid matches to the registered userId then only this condition will run
+  //User id matches to the registered userId then only this condition will run
   if (req.body.userId === req.params.id || req.body.isAdmin) {
     //Updating password : If user might want to change their password
     if (req.body.password) {
