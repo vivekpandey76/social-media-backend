@@ -70,7 +70,7 @@ router.put("/:id/follow", async (req, res) => {
       if (!user.followers.includes(req.body.userId)) {
         //It will check if user is not folllowed then it will update
         await user.updateOne({ $push: { followers: req.body.userId } });
-        await currentUser.updateOne({ $push: { followings: req.body.userId } });
+        await currentUser.updateOne({ $push: { following: req.body.userId } });
         res.status(200).json("You Followed successfully");
       } else {
         res.status(403).json("You already followed him");
@@ -80,6 +80,28 @@ router.put("/:id/follow", async (req, res) => {
     }
   } else {
     res.status(403).json("You cannot follow yourself");
+  }
+});
+
+//Unfollow user
+
+router.put("/:id/unfollow", async (req, res) => {
+  if (req.body.userId !== req.params.id) {
+    try {
+      const user = await User.findById(req.params.id);
+      const currentUser = await User.findById(req.body.userId);
+      if (user.followers.includes(req.body.userId)) {
+        await user.updateOne({ $pull: { followers: req.body.userId } });
+        await currentUser.updateOne({ $pull: { following: req.body.userId } });
+        res.status(200).json("You unfollowed him successfully");
+      } else {
+        res.status(403).json("You can't unfollow userSelf ");
+      }
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  } else {
+    res.status(403).json("You can't unfollow him");
   }
 });
 
