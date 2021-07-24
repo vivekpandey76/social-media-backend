@@ -32,6 +32,8 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+//Delete a user
+
 router.delete("/:id", async (req, res) => {
   if (req.body.userId === req.params.id || req.body.isAdmin) {
     try {
@@ -42,6 +44,42 @@ router.delete("/:id", async (req, res) => {
     }
   } else {
     return res.status(403).send("You can delete only your account");
+  }
+});
+
+//get a User
+
+router.get("/:id", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    //In this line we don't want user password so we are just taking that part from user object which we need for website
+    const { password, updatedAt, ...others } = user._doc;
+    res.status(200).json(others);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
+//Follow a user
+
+router.put("/:id/follow", async (req, res) => {
+  if (req.body.userId !== req.params.id) {
+    try {
+      const user = await User.findById(req.params.id);
+      const currentUser = await User.findById(req.body.userId);
+      if (!user.followers.includes(req.body.userId)) {
+        //It will check if user is not folllowed then it will update
+        await user.updateOne({ $push: { followers: req.body.userId } });
+        await currentUser.updateOne({ $push: { followings: req.body.userId } });
+        res.status(200).json("You Followed successfully");
+      } else {
+        res.status(403).json("You already followed him");
+      }
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  } else {
+    res.status(403).json("You cannot follow yourself");
   }
 });
 
